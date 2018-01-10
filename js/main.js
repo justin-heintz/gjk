@@ -65,13 +65,13 @@ function update(){
 	s1.vectors.push(new vector(px-180,py+50));
  
 	g.check(s1,s2,ctx)
-	mshape(s1,s2,ctx);
+	//mshape(s1,s2,ctx);
 	
 	g.check(s1,s3,ctx)
-	mshape(s1,s3,ctx);	
+	//mshape(s1,s3,ctx);	
 	
 	g.check(s1,s4,ctx)
-	mshape(s1,s4,ctx);		
+	//mshape(s1,s4,ctx);		
 
  	s1.draw(ctx,'red');
 	s2.draw(ctx,'blue');	
@@ -80,13 +80,20 @@ function update(){
 	
 	requestAnimationFrame(this.loop.bind(this));
 }
+function line(x1=0,y1=0,x2=100,y2=100,cl,c){
+	c.beginPath();
+	c.moveTo(x1,y1);
+	c.lineTo(x2,y2);
+	c.strokeStyle = cl;
+	c.stroke();	
+}
+function write(str, clear=false){if(clear){document.getElementById('debug').innerHTML+=str;}else{document.getElementById('debug').innerHTML=str;}}
 function render(){
 	ctx.fillStyle = "#ffffff"; 	
 	ctx.fillRect(0, 0, window.screen.availWidth, window.screen.availHeight);
 	ctx.save();	
 	ctx.scale(1, 1);	
 }
- 
 window.onload = function(){
 	init();
 	onkeydown = onkeyup = function(e){e = e || event; keymap[e.keyCode] = e.type == 'keydown';keymap['last_key'] = e.keyCode;}
