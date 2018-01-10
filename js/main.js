@@ -9,8 +9,8 @@ function init(){
 	py = 100;
 	ph = 100
 	pw = 100	
-	velx = 0;
-	acx = 0.5;
+	velx = vely = 0;
+	acx = acy = 0.5;
 	g = new gjk();
 	
 	s1 = new shape();
@@ -43,7 +43,6 @@ function init(){
 		s4.vectors.push(new vector(1200,400));
 		s4.vectors.push(new vector(1000,400));
 
-		
 	loop();
 }
 function loop(){ 
@@ -52,10 +51,12 @@ function loop(){
 }  
 function update(){	
 	speed = 10;
-	if(keymap['37']){px-=speed;}//velx-=acx
-	if(keymap['39']){px+=speed;}//velx+=acx
-	if(keymap['38']){py-=speed;}  
-	if(keymap['40']){py+=speed;}
+	if(keymap['37']){velx-=acx;  }//velx-=acx
+	if(keymap['39']){velx+=acx; }//velx+=acx
+	if(keymap['38']){vely-=acy; }  
+	if(keymap['40']){vely+=acy; }
+px+=velx;
+py+=vely;
 
 	s1.vectors = [];
 	s1.vectors.push(new vector(px+50,py));
@@ -65,14 +66,9 @@ function update(){
 	s1.vectors.push(new vector(px-180,py+50));
  
 	g.check(s1,s2,ctx)
-	//mshape(s1,s2,ctx);
-	
 	g.check(s1,s3,ctx)
-	//mshape(s1,s3,ctx);	
-	
 	g.check(s1,s4,ctx)
-	//mshape(s1,s4,ctx);		
-
+	
  	s1.draw(ctx,'red');
 	s2.draw(ctx,'blue');	
 	s3.draw(ctx,'orange');
