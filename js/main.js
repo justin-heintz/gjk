@@ -61,12 +61,28 @@ function loop(){
 	update(); 
 }  
 function update(){	
-	acx = acy = speed = 5;
+	speed = 5;
 
-	if(keymap['37']){velx-=acx; px-=speed}//velx-=acx
-	if(keymap['39']){velx+=acx; px+=speed}//velx+=acx
-	if(keymap['38']){vely-=acy; py-=speed}  
-	if(keymap['40']){vely+=acy; py+=speed}
+	if(keymap['37']){
+		//velx-=acx; 
+		px-=speed 
+	}
+		//velx-=acx
+	if(keymap['39']){
+		//velx+=acx; 
+		px+=speed 
+	}//velx+=acx
+	if(keymap['38']){
+		//vely-=acy; 
+		py-=speed 
+	}  
+	if(keymap['40']){
+		//vely+=acy; 
+		py+=speed 
+	}
+ 	
+	px+=velx;
+	py+=vely;	
 	
 	s1.vectors = [];
 		s1.vectors.push(new vector(px+150,py+100));
@@ -77,6 +93,7 @@ function update(){
 
  	colRestult = g.check(s1,s2,ctx)
 	if(colRestult.x || colRestult.y){
+		console.log(colRestult);
 		px -=  colRestult.x; 
 		py -=  colRestult.y; 
 	}
@@ -100,8 +117,7 @@ function update(){
 		s1.vectors.push(new vector(px+150,py+250));	
 	
 
-	//px+=velx;
-	//py+=vely;
+
 
 	
  	s1.draw(ctx,'red');
