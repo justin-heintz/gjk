@@ -14,30 +14,19 @@ function init(){
 	g = new gjk();
 	
 	s1 = new shape();
-		s1.vectors.push(new vector(px+150,py+100));
-		s1.vectors.push(new vector(px+250,py+100));
-		s1.vectors.push(new vector(px+280,py+150));
-		s1.vectors.push(new vector(px+280,py+200));
-		s1.vectors.push(new vector(px+150,py+250));	
-	/*
 		s1.vectors.push(new vector(px+50,py));
 		s1.vectors.push(new vector(px+150,py));
 		s1.vectors.push(new vector(px+180,py+50));
-	*/
- 
+		s1.vectors.push(new vector(px+180,py+100));
+		s1.vectors.push(new vector(px-180,py+50));	
 
 	s2 = new shape();
-	s2.vectors.push(new vector(px+50,  py));
-	s2.vectors.push(new vector(px+150, py));
-	s2.vectors.push(new vector(px+150, py+50));
-	s2.vectors.push(new vector(px+50, py+50))	
-	/*
 		s2.vectors.push(new vector(150,100));
 		s2.vectors.push(new vector(250,100));
 		s2.vectors.push(new vector(280,150));
 		s2.vectors.push(new vector(280,200));
 		s2.vectors.push(new vector(150,250));
-	*/
+	
 	s3 = new shape();
 		s3.vectors.push(new vector(600,100));
 		s3.vectors.push(new vector(600+50,100));
@@ -61,48 +50,24 @@ function loop(){
 	update(); 
 }  
 function update(){	
-	acx = acy = speed = 5;
+	speed = 10;
+	if(keymap['37']){velx-=acx;  }//velx-=acx
+	if(keymap['39']){velx+=acx; }//velx+=acx
+	if(keymap['38']){vely-=acy; }  
+	if(keymap['40']){vely+=acy; }
+px+=velx;
+py+=vely;
 
-	if(keymap['37']){velx-=acx; px-=speed}//velx-=acx
-	if(keymap['39']){velx+=acx; px+=speed}//velx+=acx
-	if(keymap['38']){vely-=acy; py-=speed}  
-	if(keymap['40']){vely+=acy; py+=speed}
-	
 	s1.vectors = [];
-		s1.vectors.push(new vector(px+150,py+100));
-		s1.vectors.push(new vector(px+250,py+100));
-		s1.vectors.push(new vector(px+280,py+150));
-		s1.vectors.push(new vector(px+280,py+200));
-		s1.vectors.push(new vector(px+150,py+250));	
-
- 	colRestult = g.check(s1,s2,ctx)
-	if(colRestult.x || colRestult.y){
-		px -=  colRestult.x; 
-		py -=  colRestult.y; 
-	}
-	
-	colRestult = g.check(s1,s3,ctx)
-	if(colRestult.x || colRestult.y){
-		px -=  colRestult.x; 
-		py -=  colRestult.y; 
-	}	
-	colRestult = g.check(s1,s4,ctx)
-	if(colRestult.x || colRestult.y){
-		px -=  colRestult.x; 
-		py -=  colRestult.y; 
-	}	
-	
-	s1.vectors = [];
-		s1.vectors.push(new vector(px+150,py+100));
-		s1.vectors.push(new vector(px+250,py+100));
-		s1.vectors.push(new vector(px+280,py+150));
-		s1.vectors.push(new vector(px+280,py+200));
-		s1.vectors.push(new vector(px+150,py+250));	
-	
-
-	//px+=velx;
-	//py+=vely;
-
+	s1.vectors.push(new vector(px+50,py));
+	s1.vectors.push(new vector(px+150,py));
+	s1.vectors.push(new vector(px+180,py+50));
+	s1.vectors.push(new vector(px+180,py+100));
+	s1.vectors.push(new vector(px-180,py+50));
+ 
+	g.check(s1,s2,ctx)
+	g.check(s1,s3,ctx)
+	g.check(s1,s4,ctx)
 	
  	s1.draw(ctx,'red');
 	s2.draw(ctx,'blue');	
