@@ -23,7 +23,7 @@ function init(){
 		s1.vectors.push(new vector(px+50,py));
 		s1.vectors.push(new vector(px+150,py));
 		s1.vectors.push(new vector(px+180,py+50));
-	*/
+	*/ 
  
 
 	s2 = new shape();
