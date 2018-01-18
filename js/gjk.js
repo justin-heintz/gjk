@@ -1,13 +1,3 @@
-/*
-http://www.dyn4j.org/2010/04/gjk-distance-closest-points/
-https://github.com/wanadev/collision-gjk-epa/blob/master/build/collision-gjk-epa.js
-  
-https://hamaluik.com/posts/building-a-collision-engine-part-2-2d-penetration-vectors/
-https://github.com/FuzzyWuzzie/headbutt/blob/master/src/headbutt/Headbutt2D.hx
-
-REFREN TO VECTORS FOR Headbutt2D
-https://github.com/FuzzyWuzzie/haxe-glm/blob/master/src/glm/Vec2.hx
-*/
 class gjk{
 	constructor(){
 		this.shape1;
@@ -32,7 +22,7 @@ class gjk{
 		y = (b.y * ac) - (a.y * bc);
 		return new vector(x, y);
 	}	
-	check(shape1,shape2){
+	check(shape1, shape2){
 		this.shape1 = shape1;
 		this.shape2 = shape2;
 		this.simplex = [];
@@ -94,6 +84,29 @@ class gjk{
 			}
 		}		
 	}
+	epa(){
+        var edge, support, distance;
+        var e0 = (this.simplex[1].x - this.simplex[0].x) * (this.simplex[1].y + this.simplex[0].y);
+        var e1 = (this.simplex[2].x - this.simplex[1].x) * (this.simplex[2].y + this.simplex[1].y);
+        var e2 = (this.simplex[0].x - this.simplex[2].x) * (this.simplex[0].y + this.simplex[2].y); 
+		var winding = (e0 + e1 + e2 >= 0 ? "cw" : "ccw") 
+        var intersection = new vector(0,0);   
+
+		for(let i = 0; i <= 10; i++){
+            edge = this.findClosestEdge(winding);
+            support = this.support_func( edge.normal);
+            distance = support.dot(edge.normal);
+			intersection = edge.normal;
+            intersection.multiplyScalar(distance, intersection);
+           
+			if(Math.abs(distance - edge.distance) <= 0.00001) {
+                return intersection;
+            }else{
+				this.simplex[edge.index]=support; 
+            }
+        }
+        return intersection;		
+	}
 	findClosestEdge(winding){
 		var cIndex = 0;
 		var dist, norm;
@@ -121,32 +134,24 @@ class gjk{
                 cIndex = j;
             }
         }
-
+		
         return new edgeObj(cDistance, cNormal, cIndex);		
 	}
-	epa(){
-        var edge, support, distance;
-        var e0 = (this.simplex[1].x - this.simplex[0].x) * (this.simplex[1].y + this.simplex[0].y);
-        var e1 = (this.simplex[2].x - this.simplex[1].x) * (this.simplex[2].y + this.simplex[1].y);
-        var e2 = (this.simplex[0].x - this.simplex[2].x) * (this.simplex[0].y + this.simplex[2].y); 
-		var winding = (e0 + e1 + e2 >= 0 ? "cw" : "ccw") 
-        var intersection = new vector(0,0);   
-
-		for(let i = 0; i <= 20; i++){
-            edge = this.findClosestEdge(winding);
-            support = this.support_func( edge.normal);
-            distance = support.dot(edge.normal);
-			intersection = edge.normal;
-            intersection.multiplyScalar(distance, intersection);
-           
-			if(Math.abs(distance - edge.distance) <= 0.00001) {
-                return intersection;
-            }else{
-				this.simplex[edge.index]=support; 
-            }
-        }
-        return intersection;		
-	}
+	loopCheck(shapes){
+		var result;
+		var newShapes = Array.from(shapes);
+		while(newShapes.length >= 1){
+			for(var i=1; i<=newShapes.length-1; i++){
+				//console.log(newShapes[0].name, newShapes[i].name);
+				result = this.check(newShapes[0], newShapes[i]);
+				if(result.x || result.y){
+					newShapes[0].x=-1*result.x;
+					newShapes[0].y=-1*result.y;
+				}				
+			}
+			newShapes.splice(0, 1);
+		}
+	}	
 }
 class edgeObj{
     constructor(distance,normal,index) {
@@ -156,7 +161,30 @@ class edgeObj{
     }
 }
 class shape{
-	constructor(){ this.vectors = []; }
+	constructor(name,moves,vectors=[]){ 
+		this.x = this.y = 0;
+		this.name = name;
+		this.moves = moves;	
+		this.vectors = vectors; 
+	}
+	update(){
+		if(this.moves){
+			for(let i=0; i<this.vectors.length; i++){
+				this.vectors[i].x += this.x;
+				this.vectors[i].y += this.y;
+			}
+		}
+		this.x = this.y = 0;
+	}
+	draw(ctx,color='#f00'){
+		ctx.fillStyle = color;
+		ctx.beginPath();
+		for(let i = 0; i < this.vectors.length; i++ ){
+			ctx.lineTo( this.vectors[i].x , this.vectors[i].y );
+		}
+		ctx.closePath();
+		ctx.fill();	
+	}	
 	furthest_vector(dir){
 		let k, furthestDot;
 		k = furthestDot = Number.MIN_SAFE_INTEGER;
@@ -177,18 +205,10 @@ class shape{
 		} 
 		return new vector(avg.x / this.vectors.length, avg.y / this.vectors.length);
 	} 	
-	draw(ctx,color='#f00'){
-		ctx.fillStyle = color;
-		ctx.beginPath();
-		for(let i = 0; i < this.vectors.length  ; i++ ){
-			ctx.lineTo( this.vectors[i].x , this.vectors[i].y )
-		}
-		ctx.closePath();
-		ctx.fill();	
-	}	
+	
 }
 class vector{
-	constructor(x,y){this.x = x;this.y = y;}
+	constructor(x,y){this.x = x; this.y = y;}
 	dot(b){return (this.x*b.x) + (this.y*b.y);}	
 	negate_vector(){return new vector(this.x*-1, this.y*-1);}
 	normalize(){
