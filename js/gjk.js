@@ -1,12 +1,13 @@
-//http://www.dyn4j.org/2010/04/gjk-distance-closest-points/
-//https://github.com/wanadev/collision-gjk-epa/blob/master/build/collision-gjk-epa.js
+/*
+http://www.dyn4j.org/2010/04/gjk-distance-closest-points/
+https://github.com/wanadev/collision-gjk-epa/blob/master/build/collision-gjk-epa.js
   
-//https://hamaluik.com/posts/building-a-collision-engine-part-2-2d-penetration-vectors/
-//https://github.com/FuzzyWuzzie/headbutt/blob/master/src/headbutt/Headbutt2D.hx
+https://hamaluik.com/posts/building-a-collision-engine-part-2-2d-penetration-vectors/
+https://github.com/FuzzyWuzzie/headbutt/blob/master/src/headbutt/Headbutt2D.hx
 
-//REFREN TO VECTORS FOR Headbutt2D
-//https://github.com/FuzzyWuzzie/haxe-glm/blob/master/src/glm/Vec2.hx
-
+REFREN TO VECTORS FOR Headbutt2D
+https://github.com/FuzzyWuzzie/haxe-glm/blob/master/src/glm/Vec2.hx
+*/
 class gjk{
 	constructor(){
 		this.shape1;

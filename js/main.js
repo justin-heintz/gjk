@@ -61,7 +61,7 @@ function loop(){
 	update(); 
 }  
 function update(){	
-	speed = 5;
+	speed = 10;
 
 	if(keymap['37']){
 		//velx-=acx; 
@@ -93,7 +93,6 @@ function update(){
 
  	colRestult = g.check(s1,s2,ctx)
 	if(colRestult.x || colRestult.y){
-		console.log(colRestult);
 		px -=  colRestult.x; 
 		py -=  colRestult.y; 
 	}
@@ -115,11 +114,7 @@ function update(){
 		s1.vectors.push(new vector(px+280,py+150));
 		s1.vectors.push(new vector(px+280,py+200));
 		s1.vectors.push(new vector(px+150,py+250));	
-	
 
-
-
-	
  	s1.draw(ctx,'red');
 	s2.draw(ctx,'blue');	
 	s3.draw(ctx,'orange');
@@ -134,7 +129,6 @@ function line(x1=0,y1=0,x2=100,y2=100,cl,c){
 	c.strokeStyle = cl;
 	c.stroke();	
 }
-function write(str, clear=false){if(clear){document.getElementById('debug').innerHTML+=str;}else{document.getElementById('debug').innerHTML=str;}}
 function render(){
 	ctx.fillStyle = "#ffffff"; 	
 	ctx.fillRect(0, 0, window.screen.availWidth, window.screen.availHeight);
