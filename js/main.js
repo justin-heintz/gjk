@@ -1,4 +1,7 @@
 window.onload = function(){	
+	assets = []; 
+	assets['player'] = new asset('http://bluejaydev.com/games/sprites/sprites/characters/player.png');
+
 	g = new game();
 	onkeydown = onkeyup = function(e){e = e || event; g.keymap[e.keyCode] = e.type == 'keydown'; g.keymap['last_key'] = e.keyCode;}
 }
@@ -10,8 +13,8 @@ class game{
 		this.ctx = this.prep_canvas();
 		this.phys = new gjk();
 		
-		this.player_index = 0//this.shapes.length; 
-		this.shapes[this.player_index] = new shape('obj_0',true,[
+		this.player_index = 0 //this.shapes.length; 
+		this.shapes[this.player_index] = new shape('player',true,[
 			new vector(50,0),
 			new vector(100,0),
 			new vector(100,50),
@@ -51,7 +54,11 @@ class game{
 		this.shapes[1].color="#2196F3";
 		this.shapes[2].color="#8BC34A";
 		this.shapes[3].color="#FF9800";
-/* */
+
+		
+		this.b = new animations(this.ctx);
+		this.c = new animations(this.ctx);		
+		
 		this.loop();		
 	}
 	loop(){
@@ -83,6 +90,9 @@ class game{
 		for(let i = 0; i<this.shapes.length; i++){
 			this.shapes[i].draw(this.ctx);
 		}		
+		
+		this.b.draw('run', this.shapes[0]['centroid'].x, this.shapes[0]['centroid'].y, false);
+		this.c.draw('mine',200,100,false);		
 	}
 	prep_canvas(){
 		var c = document.getElementById("canvas"); 
