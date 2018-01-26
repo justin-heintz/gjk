@@ -86,8 +86,8 @@ class game{
 	}
 	prep_canvas(){
 		var c = document.getElementById("canvas"); 
-		c.height = window.screen.availHeight-500; 
-		c.width = window.screen.availWidth-500; 
+		c.height = 500; 
+		c.width = 500; 
 		return c.getContext("2d");	
 	}
 	rng(min=1, max=10) {
