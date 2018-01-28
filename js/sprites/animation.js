@@ -1,12 +1,14 @@
 class animations{
-	constructor(ctx){
-		this.ctx = ctx
+	constructor(asset){
 		this.dir  = 'forward';
 		this.date = new Date();
-		
+		this.pos = new vector(0,0);
+		this.width = 0;
+		this.height = 0;		
 		this.current_frame = 0;
 		this.last_animation = 'NONE';
 		this.last_frame_time = 0;//this.date.getSeconds();
+		this.assest = asset;
 		this.animation = [];	
 		this.set();
 	}
@@ -41,6 +43,13 @@ class animations{
 				[253,65,35,44,	7,19,35,44] //5
 			]
 		};
+		
+		this.animation['dirt']		={frames:[[0,0,80,80,	0,0,40,40]]};		
+		this.animation['grass_dirt']={frames:[[85,0,80,80,	0,0,40,40]]};			
+		this.animation['lava_stone']={frames:[[170,0,80,80,	0,0,40,40]]};	
+		this.animation['dirt_stone']={frames:[[255,0,80,80,	0,0,40,40]]};
+		this.animation['stone']		={frames:[[340,0,80,80,	0,0,40,40]]};			
+		
 	}
 	reset(ani_name){
 		this.dir = 'forward';	
@@ -49,33 +58,40 @@ class animations{
 		this.last_frame_time = 0;
 		this.date.setSeconds(0);
 	}
-	draw(ani_name, x, y, flip = false){
-		var cf,seconds;
+	update(x,y,width,height){
+		this.pos.x = x;
+		this.pos.y = y;		
+		this.width = width;
+		this.height = height;		
+	}
+	draw(ani_name, ctx, flip = false){
+		var cf, seconds;
 		var f = (flip? -1 : 1);
 		
 		if(this.last_animation != ani_name){
 			this.reset(ani_name);
 		}
 		
-		seconds = this.last_frame_time - this.date.getSeconds();
-  
-		if(seconds >= this.animation[ani_name].options.time_between){
-			if(this.current_frame >= this.animation[ani_name].frames.length-1 && this.dir == 'forward' ){ this.dir = 'backward'; }
-			if(this.current_frame <= 0 && this.dir == 'backward' ){ this.dir = 'forward'; }
- 			if(this.dir == 'forward'){this.current_frame++;}else{this.current_frame--;}
-			
-			this.last_frame_time = 0;
-			this.date.setSeconds(0);
-		}else{
-			this.last_frame_time++;	
+		if(this.animation[ani_name].frames.length > 1){
+			seconds = this.last_frame_time - this.date.getSeconds();
+	  
+			if(seconds >= this.animation[ani_name].options.time_between){
+				if(this.current_frame >= this.animation[ani_name].frames.length-1 && this.dir == 'forward' ){ this.dir = 'backward'; }
+				if(this.current_frame <= 0 && this.dir == 'backward' ){ this.dir = 'forward'; }
+				if(this.dir == 'forward'){this.current_frame++;}else{this.current_frame--;}
+				
+				this.last_frame_time = 0;
+				this.date.setSeconds(0);
+			}else{
+				this.last_frame_time++;	
+			}
 		}
-		
 		cf = this.animation[ani_name].frames[this.current_frame];
 		
-		this.ctx.save();
-			this.ctx.scale(f, 1);  
-			this.ctx.translate( (x+(flip? 63:0))*f,y); //this is tmp the 63 might not be the correct number. its width + half (42+21)
-			this.ctx.drawImage(assets['player'].img, cf[0],cf[1],cf[2],cf[3], cf[4],cf[5],cf[6],cf[7]);
-		this.ctx.restore();
+		ctx.save();
+			ctx.scale(f, 1);  
+			ctx.translate( (this.pos.x+(flip? this.width:0))*f, this.pos.y); //this is tmp the 63 might not be the correct number. its width + half (42+21)
+			ctx.drawImage(assets[this.assest].img, cf[0],cf[1],cf[2],cf[3], cf[4],cf[5],cf[6],cf[7]);
+		ctx.restore();
 	}
-}
+}	

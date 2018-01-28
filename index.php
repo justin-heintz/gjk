@@ -11,5 +11,7 @@
 	<script src="js/phys/gjk.js"></script>
 	<script src="js/phys/quadtree.js"></script>
 	
+	<script src="js/entity.js"></script>
+	
 	<canvas id="canvas" style="display: block; width: 500px; height: 500px; margin:0 auto; border:1px solid #d3d3d3;"></canvas>
 </body>

@@ -1,10 +1,12 @@
 class shape{
-	constructor(name,moves,vectors=[]){ 
-		this.x = this.y = 0;
+	constructor(x,y,width,height){ 
+		this.width = width;
+		this.height = height;
+		this.x = this.y = 0;// not sure what this is and i cant remove it .future update remove this
 		this.color = "red";
-		this.name = name;
-		this.moves = moves;	
-		this.vectors = vectors; 
+
+		this.moves = true;	
+		this.vectors = [new vector(x,y),new vector(x+width,y),new vector(x+width,y+height),new vector(x,y+height)] ; 
 		
 		this.paths = [];
 		this.crnt_path = 0;
@@ -54,7 +56,7 @@ class shape{
 			if(this.centroid.x > path_x){this.x-=5;}else if(this.centroid.x < path_x){this.x+=5;} 
 			if(this.centroid.y > path_y){this.y-=5;}else if(this.centroid.y < path_y){this.y+=5;} 
 			
-			if( 	this.at_point(this.centroid,this.paths[this.crnt_path][this.crnt_point],5) ){ 			
+			if( this.at_point(this.centroid,this.paths[this.crnt_path][this.crnt_point],5) ){ 			
 				if(this.crnt_point < this.paths[this.crnt_path].length-1){
 					this.crnt_point++;
 				}else{
@@ -67,12 +69,16 @@ class shape{
 			}			
 		}
 	}
-	update(){
+	update(new_pos){
 		if(this.moves){
+			this.x = new_pos.x;
+			this.y = new_pos.y;				
+			
 			this.follow_path();
+ 
 			for(let i=0; i<this.vectors.length; i++){
-				this.vectors[i].x += this.x;
-				this.vectors[i].y += this.y;
+				this.vectors[i].x += this.x ;
+				this.vectors[i].y += this.y ;
 			}
 			this.centroid = this.gen_centroid();
 			this.x = this.y = 0;			

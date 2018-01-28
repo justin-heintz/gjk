@@ -119,13 +119,9 @@ class gjk{
 			j = i + 1;
             
 			if(j >= this.simplex.length){ j = 0;}
-
 			line = this.subtract_vectors(this.simplex[i], this.simplex[j]);
-
 			norm = (winding=="cw" ? new vector(line.y, -line.x) : new vector(-line.y, line.x) );
-
             norm = norm.normalize();
-
 			dist = norm.dot(this.simplex[i]);
 			
 		   if(dist <= cDistance) {
@@ -137,15 +133,16 @@ class gjk{
 		
         return new edgeObj(cDistance, cNormal, cIndex);		
 	}
+	/*TODO: Look into this function there seems to be an issue with ordering and shapes being missed*/
 	loopCheck(shapes){
 		var result;
 		var newShapes = Array.from(shapes);
 		while(newShapes.length >= 1){
 			for(var i=1; i<=newShapes.length-1; i++){
-				result = this.check(newShapes[0], newShapes[i]);
+				result = this.check(newShapes[0].shape, newShapes[i].shape);
 				if(result.x || result.y){
-					newShapes[0].x=-1*result.x;
-					newShapes[0].y=-1*result.y;
+					newShapes[0].pos.x=-1*result.x;
+					newShapes[0].pos.y=-1*result.y;
 				}				
 			}
 			newShapes.splice(0, 1);
