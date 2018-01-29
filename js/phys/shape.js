@@ -17,31 +17,7 @@ class shape{
 		this.centroid = this.gen_centroid();
 		
 		/* TMP  FOR TESTING */
-		this.paths['path_1'] = [
-			new vector(1000,100),
-			new vector(1200,100),
-			new vector(1300,200),
-			new vector(1300,300),
-			new vector(1200,400),
-			new vector(1000,100)
-		]; 	
-		
-		this.paths['path_2'] = [
-			new vector(100,100),
-			new vector(120,100),
-			new vector(130,200),
-			new vector(130,300),
-			new vector(120,400),
-			new vector(100,100)
-		]
-		
-		this.paths['path_3'] = [
-			new vector(150,100),
-			new vector(250,100),
-			new vector(250,150),
-			new vector(150,150)
-		]
-
+		this.paths['path_2'] = [new vector(100,100),new vector(120,100),new vector(130,200),new vector(130,300),new vector(120,400),new vector(100,100)]
 	}
 	at_point(vector1,vector2,radius){ 
 		var absX = Math.pow(Math.abs(vector1.x - vector2.x), 2.0) 

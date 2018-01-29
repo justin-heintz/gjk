@@ -1,6 +1,6 @@
 <body style="background: #000; overflow:hidden;width:100%;height: 100%;padding:10px;transform: transale3d(0,0,0); "> 
 	<script src="js/sprites/assets.js"></script>
-	<script src="js/sprites/animation.js"></script>
+	<script src="js/sprites/sprite.js"></script>
 	
 	<script src="js/main.js"></script>
 	
@@ -13,5 +13,5 @@
 	
 	<script src="js/entity.js"></script>
 	
-	<canvas id="canvas" style="display: block; width: 500px; height: 500px; margin:0 auto; border:1px solid #d3d3d3;"></canvas>
+	<canvas id="canvas" style="display: block; width: 520px; height: 520px; margin:0 auto; border:1px solid #d3d3d3;"></canvas>
 </body>
