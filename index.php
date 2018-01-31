@@ -20,4 +20,5 @@
 	
 	<canvas id="canvas" style="display: block; width: 520px; height: 520px; margin:0 auto;"></canvas>
 	<canvas id="overlay" style="position:relative; z-index:9; display: block; width: 520px; height: 520px; margin:-520px  auto 0 auto;"></canvas>
+	<canvas id="ui" style="position:relative; z-index:10; display: block; width: 520px; height: 520px; margin:-520px  auto 0 auto;"></canvas>
 </body>

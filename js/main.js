@@ -45,7 +45,6 @@ window.onload = function(){
 	g = new game();
 	onkeydown = onkeyup = function(e){e = e || event; g.keymap[e.keyCode] = e.type == 'keydown'; g.keymap['last_key'] = e.keyCode;}
 } 
-
 class camera{
 	constructor(width, height){
 		this.cam_speed = 5;
@@ -55,10 +54,38 @@ class camera{
 		this.pos = new vector(0,0);
 	}
 }
+class ui{
+	constructor(){
+		var canvas = document.getElementById("ui"); 
+		canvas.width = canvas.height = 520; 
+		this.ctx = canvas.getContext("2d");	
+	}	
+	update(){}
+	clear(){
+		this.ctx.clearRect(0, 0, 520, 520);
+	}
+	draw(text,style={x:10,y:20,size:"13px"}){
+
+		this.ctx.fillStyle = "black";
+		this.ctx.font = style.size+" Arial";
+		this.ctx.fillText(text,style.x,style.y);		
+	
+ 
+	}
+}
 class player{
 	constructor(cam){
 		this.direction = true;
 		this.speed = 5;
+		
+		this.max_hp = 100;
+		this.hp = 100;
+		
+		this.max_weight = 100;
+		this.weight = 0;
+
+		this.currency = 0;
+		
 		this.cam = cam;
 	}
 	trigger_action(button_pressed, ent){
@@ -114,6 +141,8 @@ class game{
 		);		
 		this.entities[ 'player' ].sprite.current_animation = 'run';
 
+		this.ui = new ui();	
+			
 		//grid = new grid();
 		
 		this.gen_stuff();
@@ -132,6 +161,7 @@ class game{
 		for(let i = 0; i<this.entities.length; i++){
 			this.entities[i].update(); 
 		}
+		
 		this.entities[ 'player' ].update();
  
 		requestAnimationFrame(this.loop.bind(this));		
@@ -139,7 +169,8 @@ class game{
 	draw(){
 		this.ctx.fillStyle = "#fff"; 	
 		this.ctx.fillRect(0,0,520,520);
-
+		this.ui.clear();
+		
 		this.ctx.save();
 			this.ctx.scale(1, 1);  
 			this.ctx.translate(this.cam.pos.x*-1, this.cam.pos.y*-1);
@@ -149,7 +180,13 @@ class game{
 			}	
 	 
 			this.entities[ 'player' ].sprite.draw(this.ctx, this.p0.direction );
+
 		this.ctx.restore();	
+		
+		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, {x:10,y:20,size:"13px"});
+		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight, {x:10,y:40,size:"13px"});	
+		this.ui.draw("$:"+this.p0.currency, {x:10,y:60,size:"13px"});	
+
 	}
 	prep_canvas(){
 		var c = document.getElementById("canvas"); 
