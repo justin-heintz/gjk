@@ -127,7 +127,7 @@ class game{
 	update(){
 		this.p0.trigger_action(this.keymap, this.entities);
 		
-		//this.phys.loopCheck(this.entities);
+		this.phys.loopCheck(this.entities);
 
 		for(let i = 0; i<this.entities.length; i++){
 			this.entities[i].update(); 
@@ -150,7 +150,6 @@ class game{
 	 
 			this.entities[ 'player' ].sprite.draw(this.ctx, this.p0.direction );
 		this.ctx.restore();	
-		
 	}
 	prep_canvas(){
 		var c = document.getElementById("canvas"); 
