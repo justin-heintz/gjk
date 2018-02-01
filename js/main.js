@@ -72,7 +72,7 @@ class player{
 	constructor(cam){
 		this.direction = true;
 		this.speed = 5;
-		
+ 
 		this.max_hp = 100;
 		this.hp = 100;
 		
@@ -80,64 +80,62 @@ class player{
 		this.weight = 0;
 
 		this.currency = 0;
+
+		this.mining_tool={
+			1:{name:"Basic PickAxe",mining_speed:5},
+			2:{name:"PickAxe",mining_speed:7},
+			3:{name:"Drill",mining_speed:10}
+		};
 		
-		this.ore = {
-			coal:0,
-			copper:0,
-			iorn:0,
-			silver:0,
-			diamond:0
-		}
-		this.ore_smelted = {
-			coal:0,
-			copper:0,
-			iorn:0,
-			silver:0,
-			diamond:0
-		}		
+		this.inventory={ 
+			mining_tool:1,
+			ore:{
+				coal: 0,
+				copper: 0,
+				iorn: 0,
+				silver: 0,
+				gold: 0,
+				diamond: 0
+			},
+			ore_smelted:{
+				coal: 0,
+				copper: 0,
+				iorn: 0,
+				silver: 0,
+				gold: 0,
+				diamond: 0
+			}
+		};
+		
 		this.cam = cam;
 	}
 	trigger_action(button_pressed, ent){
 		if(button_pressed['37']){ 
-			
-			console.log( ent[ 'player' ].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x );
+			ent[ 'player' ].pos.x = -1 * this.speed; 
 			if(ent[ 'player' ].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x){
-				console.log(1)
-				console.log(ent[ 'player' ].sprite.pos.x, this.cam.screen_padding+this.cam.pos.x);				
 				this.cam.pos.x-=this.cam.cam_speed;
-			}else{
-				console.log(2)
-				console.log(ent[ 'player' ].sprite.pos.x, this.cam.screen_padding+this.cam.pos.x);					
-				ent[ 'player' ].pos.x = -1 * this.speed; 
-				console.log(ent[ 'player' ].pos);
 			}
-
 			this.direction = false;
 		}
 		if(button_pressed['39']){
+			ent[ 'player' ].pos.x = this.speed; 
 			if(ent[ 'player' ].sprite.pos.x+ent[ 'player' ].sprite.width >= this.cam.pos.x+this.cam.width-this.cam.screen_padding){
 				this.cam.pos.x+=this.cam.cam_speed;
-				console.log(3)
-			}else{
-				ent[ 'player' ].pos.x = this.speed; 
-				console.log(4)
-			}			
+			}	
 			this.direction = true;
 		}
 		if(button_pressed['38']){
+			ent[ 'player' ].pos.y = -1*this.speed;
 			if(ent[ 'player' ].sprite.pos.y <= this.cam.screen_padding+this.cam.pos.y){
 				this.cam.pos.y-=this.cam.cam_speed;	
-			}else{
-				ent[ 'player' ].pos.y = -1*this.speed;
 			}
 		}  
 		if(button_pressed['40']){
+			ent[ 'player' ].pos.y = this.speed;
 			if( ent[ 'player' ].sprite.pos.y+ent[ 'player' ].sprite.height >= this.cam.pos.y+this.cam.height-this.cam.screen_padding){
 				this.cam.pos.y+=this.cam.cam_speed;	
-			}else{
-				ent[ 'player' ].pos.y = this.speed;	
-			}				
-		}	
+			} 				
+		}
 	}
 }
 class game{
