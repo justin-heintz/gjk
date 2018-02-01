@@ -7,7 +7,7 @@
 	
 	<script src="js/flashlight.js"></script>
 	
-	<script src="js/main.js"></script>
+	<script src="js/main.js?time=<?= time();?> "></script>
 	
 	<script src="js/worlds/w-1.js"></script>
 	

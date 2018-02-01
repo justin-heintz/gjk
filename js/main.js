@@ -1,5 +1,4 @@
 //stopped working on the flash light get back to that later 
-// need some kind of player object
 
 window.onload = function(){	
 	assets = []; 
@@ -60,17 +59,13 @@ class ui{
 		canvas.width = canvas.height = 520; 
 		this.ctx = canvas.getContext("2d");	
 	}	
-	update(){}
 	clear(){
 		this.ctx.clearRect(0, 0, 520, 520);
 	}
-	draw(text,style={x:10,y:20,size:"13px"}){
-
-		this.ctx.fillStyle = "black";
+	draw(text, pos,style={color:"black",size:"13px"}){
+		this.ctx.fillStyle = style.color ;
 		this.ctx.font = style.size+" Arial";
-		this.ctx.fillText(text,style.x,style.y);		
-	
- 
+		this.ctx.fillText(text,pos.x,pos.y);		
 	}
 }
 class player{
@@ -86,17 +81,37 @@ class player{
 
 		this.currency = 0;
 		
+		this.ore = {
+			coal:0,
+			copper:0,
+			iorn:0,
+			silver:0,
+			diamond:0
+		}
+		this.ore_smelted = {
+			coal:0,
+			copper:0,
+			iorn:0,
+			silver:0,
+			diamond:0
+		}		
 		this.cam = cam;
 	}
 	trigger_action(button_pressed, ent){
 		if(button_pressed['37']){ 
+			
+			console.log( ent[ 'player' ].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x );
 			if(ent[ 'player' ].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x){
-				this.cam.pos.x-=this.cam.cam_speed;
 				console.log(1)
+				console.log(ent[ 'player' ].sprite.pos.x, this.cam.screen_padding+this.cam.pos.x);				
+				this.cam.pos.x-=this.cam.cam_speed;
 			}else{
-				ent[ 'player' ].pos.x = -1 * this.speed; 
 				console.log(2)
+				console.log(ent[ 'player' ].sprite.pos.x, this.cam.screen_padding+this.cam.pos.x);					
+				ent[ 'player' ].pos.x = -1 * this.speed; 
+				console.log(ent[ 'player' ].pos);
 			}
+
 			this.direction = false;
 		}
 		if(button_pressed['39']){
@@ -183,10 +198,9 @@ class game{
 
 		this.ctx.restore();	
 		
-		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, {x:10,y:20,size:"13px"});
-		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight, {x:10,y:40,size:"13px"});	
-		this.ui.draw("$:"+this.p0.currency, {x:10,y:60,size:"13px"});	
-
+		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, new vector(10,20) );
+		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight,new vector(10,40));	
+		this.ui.draw("$:"+this.p0.currency,new vector(10,60));	
 	}
 	prep_canvas(){
 		var c = document.getElementById("canvas"); 
@@ -201,16 +215,14 @@ class game{
 		var ani = 'dirt';
 		var track = 0;
 		
-		for(var w=0;w<1;w++){
-			for(var h=0;h<1;h++){
-				switch(this.rng(6, 7)){
+		for(var w=0;w<20;w++){
+			for(var h=4;h<13;h++){
+				switch(this.rng(1, 2)){
 					case 1: ani='dirt'; break; case 2: ani='grass_dirt'; break; case 3: ani='lava_stone'; break; case 4: ani='dirt_stone'; break; case 5: ani='stone'; break; case 6: ani='run'; break; case 7: ani='mine'; break;					
 				}
-				this.entities[track] = new entity( new shape(w*40,h*64,40,64), new sprite('player') );
-				this.entities[track].sprite.current_animation = ani;
-				
-				//this.entities[track].dir = (this.rng(6, 7))
-				
+				this.entities[track] = new entity( new shape(w*40,h*40,40,40), new sprite('terrain') );
+				this.entities[track].sprite.current_animation = (h==4?"grass_dirt":"dirt")  ;
+
 				track++;
 			}
 		}
