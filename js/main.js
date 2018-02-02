@@ -1,5 +1,6 @@
+//KEYCODE BUTTONS !!!
+//http://keycode.info
 //stopped working on the flash light get back to that later 
-
 window.onload = function(){	
 	assets = []; 
 	assets['player'] = new asset('http://bluejaydev.com/games/gjk-dev/gjk/sprites/characters/player.png');
@@ -41,38 +42,26 @@ window.onload = function(){
 	assets['terrain'].animation['dirt_stone']={frames:[[255,0,80,80,	0,0,40,40]]};
 	assets['terrain'].animation['stone']	 ={frames:[[340,0,80,80,	0,0,40,40]]};	
 
+	fg = document.getElementById("foreground"); 
+	bg = document.getElementById("background"); 
+	ltg = document.getElementById("lighting"); 
+	uic = document.getElementById("ui"); 
+	
+	fg.width = fg.height = bg.width = bg.height = ltg.width = ltg.height = uic.width = uic.height = 520; 
+	canvas={fg: fg.getContext("2d"), bg: bg.getContext("2d"), ltg: ltg.getContext("2d"), ui: uic.getContext("2d")}
+
 	g = new game();
 	onkeydown = onkeyup = function(e){e = e || event; g.keymap[e.keyCode] = e.type == 'keydown'; g.keymap['last_key'] = e.keyCode;}
 } 
-class camera{
-	constructor(width, height){
-		this.cam_speed = 5;
-		this.screen_padding = 40;
-		this.width = width;
-		this.height = height;
-		this.pos = new vector(0,0);
-	}
-}
-class ui{
-	constructor(){
-		var canvas = document.getElementById("ui"); 
-		canvas.width = canvas.height = 520; 
-		this.ctx = canvas.getContext("2d");	
-	}	
-	clear(){
-		this.ctx.clearRect(0, 0, 520, 520);
-	}
-	draw(text, pos,style={color:"black",size:"13px"}){
-		this.ctx.fillStyle = style.color ;
-		this.ctx.font = style.size+" Arial";
-		this.ctx.fillText(text,pos.x,pos.y);		
-	}
-}
+
 class player{
 	constructor(cam){
-		this.direction = true;
+		this.cam = cam;
+		
 		this.speed = 5;
- 
+		this.can_move = true;
+		this.direction = true;
+		
 		this.max_hp = 100;
 		this.hp = 100;
 		
@@ -81,10 +70,15 @@ class player{
 
 		this.currency = 0;
 
+		this.mining_time_start = Date.now();
+		this.mining_time_current = 0;
+		
+		this.is_mining = false;
+		
 		this.mining_tool={
-			1:{name:"Basic PickAxe",mining_speed:5},
-			2:{name:"PickAxe",mining_speed:7},
-			3:{name:"Drill",mining_speed:10}
+			1:{name:"Basic PickAxe",mining_base_speed:100},
+			2:{name:"PickAxe",mining_base_speed:70},
+			3:{name:"Drill",mining_base_speed:10}
 		};
 		
 		this.inventory={ 
@@ -106,35 +100,76 @@ class player{
 				diamond: 0
 			}
 		};
-		
-		this.cam = cam;
 	}
+	 
 	trigger_action(button_pressed, ent){
-		if(button_pressed['37']){ 
-			ent[ 'player' ].pos.x = -1 * this.speed; 
-			if(ent[ 'player' ].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x){
+		if(button_pressed['16']){
+			this.inventory.mining_tool = 3;
+			this.can_move = true;
+			this.is_mining = false;			
+		}		
+		if(button_pressed['32']){
+			//need a way to figure out what block you are mining ! probably something to do with the grid
+			//mining_base_speed + block type 
+			if(this.is_mining){	
+				if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= this.mining_tool[ this.inventory.mining_tool ]['mining_base_speed']){
+					console.log('FINISHED MINING BLOCK');
+					this.is_mining = false;
+				}else{
+					this.mining_time_current = Date.now();
+				}
+			}else{
+				console.log('STARTED MINING / RESET MINING');
+				this.mining_time_current = Date.now();
+				this.mining_time_start = Date.now()
+				
+				this.can_move = false;
+				this.is_mining = true;
+				
+			}
+			ent['player'].sprite.current_animation = 'mine';
+			
+		}else{
+			this.is_mining = false;
+			this.can_move = true;
+		}
+		
+		if(button_pressed['37'] && this.can_move){ 
+			ent['player'].pos.x = -1 * this.speed; 
+			if(ent['player'].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x){
 				this.cam.pos.x-=this.cam.cam_speed;
 			}
+			ent['player'].sprite.current_animation = 'run';
 			this.direction = false;
 		}
-		if(button_pressed['39']){
-			ent[ 'player' ].pos.x = this.speed; 
-			if(ent[ 'player' ].sprite.pos.x+ent[ 'player' ].sprite.width >= this.cam.pos.x+this.cam.width-this.cam.screen_padding){
+		if(button_pressed['39'] && this.can_move){
+			ent['player'].pos.x = this.speed; 
+			if(ent['player'].sprite.pos.x+ent['player'].sprite.width >= this.cam.pos.x+this.cam.width-this.cam.screen_padding){
 				this.cam.pos.x+=this.cam.cam_speed;
 			}	
+			ent['player'].sprite.current_animation = 'run';
 			this.direction = true;
 		}
-		if(button_pressed['38']){
-			ent[ 'player' ].pos.y = -1*this.speed;
-			if(ent[ 'player' ].sprite.pos.y <= this.cam.screen_padding+this.cam.pos.y){
+		if(button_pressed['38'] && this.can_move){
+			ent['player'].pos.y = -1*this.speed;
+			if(ent['player'].sprite.pos.y <= this.cam.screen_padding+this.cam.pos.y){
 				this.cam.pos.y-=this.cam.cam_speed;	
 			}
+			ent['player'].sprite.current_animation = 'run';
 		}  
-		if(button_pressed['40']){
-			ent[ 'player' ].pos.y = this.speed;
-			if( ent[ 'player' ].sprite.pos.y+ent[ 'player' ].sprite.height >= this.cam.pos.y+this.cam.height-this.cam.screen_padding){
+		if(button_pressed['40'] && this.can_move){
+			ent['player'].pos.y = this.speed;
+			if( ent['player'].sprite.pos.y+ent['player'].sprite.height >= this.cam.pos.y+this.cam.height-this.cam.screen_padding){
 				this.cam.pos.y+=this.cam.cam_speed;	
 			} 				
+			ent['player'].sprite.current_animation = 'run';
+		}
+		
+		//if nothing is pressed change animation to ide 
+		//create a idle animation
+		//switch this to idle
+		if(!button_pressed['16'] && !button_pressed['32'] && !button_pressed['37'] && !button_pressed['39'] && !button_pressed['38'] && !button_pressed['40']){
+			ent['player'].sprite.current_animation = 'run';
 		}
 	}
 }
@@ -142,22 +177,17 @@ class game{
 	constructor(){
 		this.keymap = [];
 		this.entities = [];
- 
-		this.ctx = this.prep_canvas();
+		
+		this.ui = new ui();	
 		this.phys = new gjk();
-		
 		this.cam = new camera(520, 520);
-		
+		this.grid = new grid();
 		this.p0 = new player(this.cam);
 		this.entities['player'] = new entity(
-			new shape(40,64,40,64),new sprite('player')
+			new shape(40,64,40,64), new sprite('player')
 		);		
-		this.entities[ 'player' ].sprite.current_animation = 'run';
+		this.entities['player'].sprite.current_animation = 'run';
 
-		this.ui = new ui();	
-			
-		//grid = new grid();
-		
 		this.gen_stuff();
 		
 		this.loop();		
@@ -169,61 +199,51 @@ class game{
 	update(){
 		this.p0.trigger_action(this.keymap, this.entities);
 		
-		this.phys.loopCheck(this.entities);
+		//this.phys.loopCheck(this.entities);
 
-		for(let i = 0; i<this.entities.length; i++){
-			this.entities[i].update(); 
-		}
+		this.grid.get(this.cam.pos.x, this.cam.width, this.cam.pos.y, this.cam.height, function(e){
+			e.update();
+		});			
 		
-		this.entities[ 'player' ].update();
+		this.entities['player'].update();
  
 		requestAnimationFrame(this.loop.bind(this));		
 	}
 	draw(){
-		this.ctx.fillStyle = "#fff"; 	
-		this.ctx.fillRect(0,0,520,520);
 		this.ui.clear();
+		canvas.fg.fillRect(0,0,520,520);
+ 
+		canvas.fg.save();
+			canvas.fg.scale(1, 1);  
+			canvas.fg.translate(this.cam.pos.x*-1, this.cam.pos.y*-1);
 		
-		this.ctx.save();
-			this.ctx.scale(1, 1);  
-			this.ctx.translate(this.cam.pos.x*-1, this.cam.pos.y*-1);
-				
-			for(let i = 0; i<this.entities.length; i++){
-				this.entities[i].sprite.draw(this.ctx);
-			}	
-	 
-			this.entities[ 'player' ].sprite.draw(this.ctx, this.p0.direction );
+			this.grid.get(this.cam.pos.x, this.cam.width, this.cam.pos.y, this.cam.height, function(e){
+				e.sprite.draw(canvas.fg);
+			});	
 
-		this.ctx.restore();	
+			this.entities['player'].sprite.draw(canvas.fg, this.p0.direction );
+
+		canvas.fg.restore();	
 		
 		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, new vector(10,20) );
 		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight,new vector(10,40));	
 		this.ui.draw("$:"+this.p0.currency,new vector(10,60));	
+		
+		this.ui.draw("Current-Axe:"+this.p0.mining_tool[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
 	}
-	prep_canvas(){
-		var c = document.getElementById("canvas"); 
-		c.width = c.height = 520; 
-		return c.getContext("2d");	
+	gen_stuff(){
+		var ani = 'dirt';
+		var tmp;
+		for(var w=0;w<20;w++){
+			for(var h=4;h<13;h++){
+				//switch(this.rng(1, 2)){case 1: ani='dirt'; break; case 2: ani='grass_dirt'; break; case 3: ani='lava_stone'; break; case 4: ani='dirt_stone'; break; case 5: ani='stone'; break; case 6: ani='run'; break; case 7: ani='mine'; break;}
+				tmp = new entity( new shape(w*40,h*40,40,40), new sprite('terrain'))
+				tmp.sprite.current_animation = (h==4?"grass_dirt":"dirt");
+				this.grid.add(tmp);
+			}
+		}
 	}
 	rng(min=1, max=10) {
 		return Math.floor(Math.random() * (max - min + 1) ) + min;
-	}
-	gen_stuff(){//REMOVE THIS LATER ITS ONLY FOR TESTING
-		var rand = 1
-		var ani = 'dirt';
-		var track = 0;
-		
-		for(var w=0;w<20;w++){
-			for(var h=4;h<13;h++){
-				switch(this.rng(1, 2)){
-					case 1: ani='dirt'; break; case 2: ani='grass_dirt'; break; case 3: ani='lava_stone'; break; case 4: ani='dirt_stone'; break; case 5: ani='stone'; break; case 6: ani='run'; break; case 7: ani='mine'; break;					
-				}
-				this.entities[track] = new entity( new shape(w*40,h*40,40,40), new sprite('terrain') );
-				this.entities[track].sprite.current_animation = (h==4?"grass_dirt":"dirt")  ;
-
-				track++;
-			}
-		}
-		
-	}
+	}	
 }

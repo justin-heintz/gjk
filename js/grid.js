@@ -4,7 +4,7 @@ class grid{
 		this.grid_size  = 40;
 	}
 	add(ent){
-		var key = this.key(this.divide(ent.shape.x), this.divide(ent.shape.y));
+		var key = this.key(this.divide(ent.shape.centroid.x-20), this.divide(ent.shape.centroid.y-20));
 		if(!Array.isArray( this.container[key] )){ this.container[key] = []; }
 		this.container[key].push(ent);
 		ent.id = key;
@@ -13,7 +13,9 @@ class grid{
 		var tmp_key, listen = [];
  		for(let x=this.divide(x_min); x<this.divide(x_max); x++){
 			for(let y=this.divide(y_min); y<this.divide(y_max); y++){
+
 				if(callback != null){ 
+				
 					tmp_key = this.key(x,y);
 					if( Array.isArray(this.container[tmp_key]) && this.container[this.key(x,y)].length > 0){
 						for(let i=0; i<this.container[tmp_key].length; i++){
@@ -27,12 +29,13 @@ class grid{
 		}
 		if(listen.length!=0){ return listen; }
  	}
-	key(x,y){
-		var x_sign = Math.sign(x)==-1?0:1;
-		var y_sign = Math.sign(y)==-1?0:1;
+	key(xx,yy){
+		//console.log(x);  
+		var x_sign = Math.sign(xx)==-1?0:1;
+		var y_sign = Math.sign(yy)==-1?0:1;
 		
-		var x = this.pad(x,4,0)*(x<0?-1:1);
-		var y = this.pad(y,4,0)*(y<0?-1:1);
+		var x = this.pad(xx,4,0)*(xx<0?-1:1);
+		var y = this.pad(yy,4,0)*(yy<0?-1:1);
 		
 		return x_sign+'-'+x+'-'+y_sign+'-'+y;
 	}
