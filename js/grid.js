@@ -1,18 +1,21 @@
 class grid{
-	constructor( ){
+	constructor(cam_width, cam_height){
 		this.container = [];
 		this.grid_size  = 40;
+		this.cam_width = cam_width;
+		this.cam_height = cam_height;
 	}
 	add(ent){
 		var key = this.key(this.divide(ent.shape.centroid.x-20), this.divide(ent.shape.centroid.y-20));
+		
 		if(!Array.isArray( this.container[key] )){ this.container[key] = []; }
 		this.container[key].push(ent);
 		ent.id = key;
 	}
-	get(x_min,x_max,y_min,y_max,callback=null){
+	get(x_min,y_min,callback=null){
 		var tmp_key, listen = [];
- 		for(let x=this.divide(x_min); x<this.divide(x_max); x++){
-			for(let y=this.divide(y_min); y<this.divide(y_max); y++){
+ 		for(let x=this.divide(x_min-40); x<this.divide(this.cam_width+x_min); x++){
+			for(let y=this.divide(y_min); y<this.divide(this.cam_height+y_min); y++){
 
 				if(callback != null){ 
 				

@@ -50,6 +50,11 @@ window.onload = function(){
 	fg.width = fg.height = bg.width = bg.height = ltg.width = ltg.height = uic.width = uic.height = 520; 
 	canvas={fg: fg.getContext("2d"), bg: bg.getContext("2d"), ltg: ltg.getContext("2d"), ui: uic.getContext("2d")}
 
+	//try to find a better place for this
+	sky_day = canvas.bg.createLinearGradient(0, 0, 0, 170);
+	sky_day.addColorStop(0, "#2196F3");
+	sky_day.addColorStop(1, "#81D4FA");	
+	
 	g = new game();
 	onkeydown = onkeyup = function(e){e = e || event; g.keymap[e.keyCode] = e.type == 'keydown'; g.keymap['last_key'] = e.keyCode;}
 } 
@@ -75,14 +80,24 @@ class player{
 		
 		this.is_mining = false;
 		
-		this.mining_tool={
-			1:{name:"Basic PickAxe",mining_base_speed:100},
-			2:{name:"PickAxe",mining_base_speed:70},
-			3:{name:"Drill",mining_base_speed:10}
+		this.mining_tools={
+			0:{name:"Basic PickAxe",mining_base_speed:100},
+			1:{name:"PickAxe",mining_base_speed:70},
+			2:{name:"Drill",mining_base_speed:10}
+		};
+		this.backpacks={
+			0:{name:"",weight:100},
+			1:{name:"",weight:70},
+			2:{name:"",weight:10}
 		};
 		
 		this.inventory={ 
-			mining_tool:1,
+			mining_tool:0,
+			backpack:0,
+			elevator:{
+				cart:0,
+				rope:0
+			},	
 			ore:{
 				coal: 0,
 				copper: 0,
@@ -104,7 +119,7 @@ class player{
 	 
 	trigger_action(button_pressed, ent){
 		if(button_pressed['16']){
-			this.inventory.mining_tool = 3;
+			this.inventory.mining_tool = 2;
 			this.can_move = true;
 			this.is_mining = false;			
 		}		
@@ -112,7 +127,7 @@ class player{
 			//need a way to figure out what block you are mining ! probably something to do with the grid
 			//mining_base_speed + block type 
 			if(this.is_mining){	
-				if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= this.mining_tool[ this.inventory.mining_tool ]['mining_base_speed']){
+				if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= this.mining_tools[ this.inventory.mining_tool ]['mining_base_speed']){
 					console.log('FINISHED MINING BLOCK');
 					this.is_mining = false;
 				}else{
@@ -181,7 +196,7 @@ class game{
 		this.ui = new ui();	
 		this.phys = new gjk();
 		this.cam = new camera(520, 520);
-		this.grid = new grid();
+		this.grid = new grid(520,520);
 		this.p0 = new player(this.cam);
 		this.entities['player'] = new entity(
 			new shape(40,64,40,64), new sprite('player')
@@ -201,7 +216,7 @@ class game{
 		
 		//this.phys.loopCheck(this.entities);
 
-		this.grid.get(this.cam.pos.x, this.cam.width, this.cam.pos.y, this.cam.height, function(e){
+		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){
 			e.update();
 		});			
 		
@@ -211,13 +226,15 @@ class game{
 	}
 	draw(){
 		this.ui.clear();
-		canvas.fg.fillRect(0,0,520,520);
+		canvas.fg.clearRect(0, 0, 520, 520);
+		//canvas.fg.fillRect(0,0,520,520);
  
+		/*====== FG ======*/
 		canvas.fg.save();
 			canvas.fg.scale(1, 1);  
 			canvas.fg.translate(this.cam.pos.x*-1, this.cam.pos.y*-1);
 		
-			this.grid.get(this.cam.pos.x, this.cam.width, this.cam.pos.y, this.cam.height, function(e){
+			this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){
 				e.sprite.draw(canvas.fg);
 			});	
 
@@ -225,23 +242,39 @@ class game{
 
 		canvas.fg.restore();	
 		
+		/*====== BG ======*/
+		canvas.bg.fillStyle = sky_day;
+		canvas.bg.fillRect(0, 0, 520, 520);
+		
+		/*====== UI ======*/
+		/*
 		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, new vector(10,20) );
 		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight,new vector(10,40));	
 		this.ui.draw("$:"+this.p0.currency,new vector(10,60));	
+		this.ui.draw("Current-Axe:"+this.p0.mining_tools[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
+		*/
 		
-		this.ui.draw("Current-Axe:"+this.p0.mining_tool[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
+		this.ui.draw(
+		this.cam.pos.x+
+		"/"+
+		(this.cam.pos.x+this.cam.width)+
+		"/"+
+		this.cam.pos.y+
+		"/"+
+		(this.cam.pos.y+this.cam.height) ,new vector(10,60));	
 	}
 	gen_stuff(){
 		var ani = 'dirt';
 		var tmp;
-		for(var w=0;w<20;w++){
-			for(var h=4;h<13;h++){
+		for(var w=0;w<120;w++){
+			for(var h=4;h<120;h++){
 				//switch(this.rng(1, 2)){case 1: ani='dirt'; break; case 2: ani='grass_dirt'; break; case 3: ani='lava_stone'; break; case 4: ani='dirt_stone'; break; case 5: ani='stone'; break; case 6: ani='run'; break; case 7: ani='mine'; break;}
 				tmp = new entity( new shape(w*40,h*40,40,40), new sprite('terrain'))
 				tmp.sprite.current_animation = (h==4?"grass_dirt":"dirt");
 				this.grid.add(tmp);
 			}
 		}
+		//console.log(this.grid.container);die();
 	}
 	rng(min=1, max=10) {
 		return Math.floor(Math.random() * (max - min + 1) ) + min;
