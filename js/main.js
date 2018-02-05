@@ -92,7 +92,7 @@ class player{
 		};
 		
 		this.inventory={ 
-			mining_tool:0,
+			mining_tool:2,
 			backpack:0,
 			elevator:{
 				cart:0,
@@ -116,20 +116,20 @@ class player{
 			}
 		};
 	}
-	 
-	trigger_action(button_pressed, ent){
-		if(button_pressed['16']){
-			this.inventory.mining_tool = 2;
-			this.can_move = true;
-			this.is_mining = false;			
-		}		
+	trigger_action(button_pressed, ent, block = null){
+
 		if(button_pressed['32']){
 			//need a way to figure out what block you are mining ! probably something to do with the grid
 			//mining_base_speed + block type 
+	
 			if(this.is_mining){	
 				if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= this.mining_tools[ this.inventory.mining_tool ]['mining_base_speed']){
 					console.log('FINISHED MINING BLOCK');
 					this.is_mining = false;
+					if(block != null){
+						block.splice(0, 1);
+					}
+					
 				}else{
 					this.mining_time_current = Date.now();
 				}
@@ -143,12 +143,15 @@ class player{
 				
 			}
 			ent['player'].sprite.current_animation = 'mine';
-			
 		}else{
 			this.is_mining = false;
 			this.can_move = true;
 		}
-		
+		if(button_pressed['16']){
+			this.inventory.mining_tool = 2;
+			this.can_move = true;
+			this.is_mining = false;			
+		}		
 		if(button_pressed['37'] && this.can_move){ 
 			ent['player'].pos.x = -1 * this.speed; 
 			if(ent['player'].sprite.pos.x <= this.cam.screen_padding+this.cam.pos.x){
@@ -179,17 +182,16 @@ class player{
 			} 				
 			ent['player'].sprite.current_animation = 'run';
 		}
-		
-		//if nothing is pressed change animation to ide 
-		//create a idle animation
-		//switch this to idle
 		if(!button_pressed['16'] && !button_pressed['32'] && !button_pressed['37'] && !button_pressed['39'] && !button_pressed['38'] && !button_pressed['40']){
+			//if nothing is pressed change animation to idle | create a idle animation | switch this to idle
 			ent['player'].sprite.current_animation = 'run';
 		}
 	}
 }
 class game{
 	constructor(){
+		this.block = null;
+		
 		this.keymap = [];
 		this.entities = [];
 		
@@ -212,13 +214,47 @@ class game{
 		this.update();
 	}  	
 	update(){
-		this.p0.trigger_action(this.keymap, this.entities);
+		var txx = Math.floor(this.entities['player'].shape.centroid.x/40) + (this.p0.direction? 1 : -1);
+		var tyy = Math.floor(this.entities['player'].shape.centroid.y/40)  ;
+ 
+		if(this.grid.container['1-'+txx+'-1-'+tyy] != undefined && this.grid.container['1-'+txx+'-1-'+tyy].length > 0){
+			this.block = this.grid.container['1-'+txx+'-1-'+tyy]
+		}else{ this.block = null; }
+		
+		this.p0.trigger_action(this.keymap, this.entities, this.block);
 		
 		//this.phys.loopCheck(this.entities);
-
+		
+		//console.log( this.grid.get(this.cam.pos.x, this.cam.pos.y)  ); 
+		
+		var keys = this.grid.get(this.cam.pos.x, this.cam.pos.y);
+		//console.log(keys[0].split("-"));		
+		//console.log(keys[keys.length-1].split("-"));
+		
+		var start = keys[0].split("-");
+		var end = keys[keys.length-1].split("-");
+		
+		
+		//FIND OUT WHY THIS CAN BE NAN SOMETIMES !!!!!!!
+		start[1] = (isNaN(start[1]) ? 0: start[1]);
+		//console.log(start[1]+'-'+end[1]+'-'+start[3]+'-'+end[3]);
+		for(let width = start[1]; width <= end[1]; width++){
+			for(let height = start[3]; height <= end[3]; height++){
+				//console.log('1-'+width+'-1-'+height);
+				//console.log();
+				if( this.grid.container['1-'+width+'-1-'+height] != undefined){
+					//console.log(this.grid.container['1-'+width+'-1-'+height]);
+					if( this.grid.container['1-'+width+'-1-'+height][0] != undefined){
+						this.grid.container['1-'+width+'-1-'+height][0].update()
+					}
+				}
+			}
+		}
+		
+		/*
 		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){
 			e.update();
-		});			
+		});*/			
 		
 		this.entities['player'].update();
  
@@ -227,19 +263,18 @@ class game{
 	draw(){
 		this.ui.clear();
 		canvas.fg.clearRect(0, 0, 520, 520);
-		//canvas.fg.fillRect(0,0,520,520);
  
 		/*====== FG ======*/
 		canvas.fg.save();
 			canvas.fg.scale(1, 1);  
 			canvas.fg.translate(this.cam.pos.x*-1, this.cam.pos.y*-1);
-		
+
 			this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){
 				e.sprite.draw(canvas.fg);
 			});	
 
 			this.entities['player'].sprite.draw(canvas.fg, this.p0.direction );
-
+ 
 		canvas.fg.restore();	
 		
 		/*====== BG ======*/
@@ -247,21 +282,10 @@ class game{
 		canvas.bg.fillRect(0, 0, 520, 520);
 		
 		/*====== UI ======*/
-		/*
 		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, new vector(10,20) );
 		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight,new vector(10,40));	
 		this.ui.draw("$:"+this.p0.currency,new vector(10,60));	
 		this.ui.draw("Current-Axe:"+this.p0.mining_tools[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
-		*/
-		
-		this.ui.draw(
-		this.cam.pos.x+
-		"/"+
-		(this.cam.pos.x+this.cam.width)+
-		"/"+
-		this.cam.pos.y+
-		"/"+
-		(this.cam.pos.y+this.cam.height) ,new vector(10,60));	
 	}
 	gen_stuff(){
 		var ani = 'dirt';
