@@ -225,7 +225,7 @@ class game{
 		
 		//this.phys.loopCheck(this.entities);
 		
-		//console.log( this.grid.get(this.cam.pos.x, this.cam.pos.y)  ); 
+
 		
 		var keys = this.grid.get(this.cam.pos.x, this.cam.pos.y);
 		//console.log(keys[0].split("-"));		
@@ -233,7 +233,6 @@ class game{
 		
 		var start = keys[0].split("-");
 		var end = keys[keys.length-1].split("-");
-		
 		
 		//FIND OUT WHY THIS CAN BE NAN SOMETIMES !!!!!!!
 		start[1] = (isNaN(start[1]) ? 0: start[1]);
@@ -251,10 +250,7 @@ class game{
 			}
 		}
 		
-		/*
-		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){
-			e.update();
-		});*/			
+		/* this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){ e.update(); });*/			
 		
 		this.entities['player'].update();
  
@@ -269,9 +265,34 @@ class game{
 			canvas.fg.scale(1, 1);  
 			canvas.fg.translate(this.cam.pos.x*-1, this.cam.pos.y*-1);
 
+			
+			var keys = this.grid.get(this.cam.pos.x, this.cam.pos.y);
+			//console.log(keys[0].split("-"));		
+			//console.log(keys[keys.length-1].split("-"));
+			
+			var start = keys[0].split("-");
+			var end = keys[keys.length-1].split("-");
+			
+			//FIND OUT WHY THIS CAN BE NAN SOMETIMES !!!!!!!
+			start[1] = (isNaN(start[1]) ? 0: start[1]);
+			//console.log(start[1]+'-'+end[1]+'-'+start[3]+'-'+end[3]);
+			for(let width = start[1]; width <= end[1]; width++){
+				for(let height = start[3]; height <= end[3]; height++){
+					//console.log('1-'+width+'-1-'+height);
+					//console.log();
+					if( this.grid.container['1-'+width+'-1-'+height] != undefined){
+						//console.log(this.grid.container['1-'+width+'-1-'+height]);
+						if( this.grid.container['1-'+width+'-1-'+height][0] != undefined){
+							this.grid.container['1-'+width+'-1-'+height][0].sprite.draw(canvas.fg);
+						}
+					}
+				}
+			}			
+			
+			/*
 			this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){
 				e.sprite.draw(canvas.fg);
-			});	
+			});*/	
 
 			this.entities['player'].sprite.draw(canvas.fg, this.p0.direction );
  
