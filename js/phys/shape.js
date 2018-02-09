@@ -2,7 +2,8 @@ class shape{
 	constructor(x,y,width,height){ 
 		this.width = width;
 		this.height = height;
-		this.x = this.y = 0;// not sure what this is and i cant remove it .future update remove this
+		this.mass = 100;
+		this.x = this.y = 0;
 		this.color = "red";
 
 		this.moves = true;	

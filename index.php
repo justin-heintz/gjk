@@ -14,6 +14,7 @@
 	<script src="js/camera.js"></script>
 	<script src="js/ui.js"></script>
 	<script src="js/grid.js"></script>	
+	<script src="js/player.js "></script>
 	<script src="js/main.js "></script>
 
 	<style>
