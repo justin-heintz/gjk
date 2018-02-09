@@ -46,15 +46,30 @@ class grid{
 		}else{ 
 			return null; 
 		}
-	}	
+	}
+	surrounding_ents(vector){
+		var x = Math.floor(vector.x/this.grid_size);
+		var y = Math.floor(vector.y/this.grid_size);
+
+		return [
+			this.check_empty( this.container['1-'+x+'-1-'+(y+1)]  ),
+			this.check_empty( this.container['1-'+x+'-1-'+(y-1)]  ),
+			this.check_empty( this.container['1-'+(x+1)+'-1-'+y] ),
+			this.check_empty( this.container['1-'+(x-1)+'-1-'+y]  )
+			];
+	}
+	check_empty(ary){
+		if(ary != undefined && ary != null && ary.length != 0){
+			return ary[0];
+		}
+	}
 	key(xx,yy){
-		
  		var x_sign = Math.sign(xx)==-1?0:1;
 		var y_sign = Math.sign(yy)==-1?0:1;
 		
 		var x = this.pad(xx,4,0)*(xx<0?-1:1);
 		var y = this.pad(yy,4,0)*(yy<0?-1:1);
-		//if(isNaN(x)){console.log(xx);die();}
+
 		return x_sign+'-'+x+'-'+y_sign+'-'+y;
 	}
 	pad(n, width, z) {
@@ -66,3 +81,4 @@ class grid{
 		return Math.ceil(no/this.grid_size);
 	}
 }	
+

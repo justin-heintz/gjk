@@ -61,8 +61,7 @@ window.onload = function(){
 
 class game{
 	constructor(){
-		this.block = null;
-		
+ 
 		this.keymap = [];
  		
 		this.ui = new ui();	
@@ -85,18 +84,31 @@ class game{
 		this.update();
 	}  	
 	update(){
-		this.p0.block = this.grid.get_single(this.grid.container['player'].shape.centroid, this.p0.direction);
- 
- 		this.p0.trigger_action(this.keymap, this.grid.container['player'] );
+		this.p0.blocks = this.grid.surrounding_ents( this.grid.container['player'].shape.centroid );
+		this.p0.blocks.unshift(this.grid.container['player']);
 		
-		var ents = this.grid.get(this.cam.pos.x, this.cam.pos.y);
-		ents.push(this.grid.container['player']);
-		this.phys.loopCheck(ents);
- 		
+ 		var remove_block = this.p0.trigger_action(this.keymap, this.grid.container['player'] );
+		
+		if(remove_block != null || remove_block != undefined){
+			delete this.grid.container[remove_block]
+		}
+		
+		this.grid.container['player'].update();
+		
+		var count = 0;
+		count += (this.p0.blocks[0] != undefined ? 1 : 0);
+		count += (this.p0.blocks[1] != undefined ? 1 : 0); 
+		count += (this.p0.blocks[2] != undefined ? 1 : 0);
+		count += (this.p0.blocks[3] != undefined ? 1 : 0); 
+		
+		if(count!=0){
+			this.phys.loopCheck(this.p0.blocks);
+ 		}
+		
 		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){ 
 			e.update(); 
-		}); 		
-		
+		}); 	
+
 		this.grid.container['player'].update();
  
 		requestAnimationFrame(this.loop.bind(this));		

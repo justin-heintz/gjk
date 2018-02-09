@@ -58,7 +58,6 @@ class player{
 		};
 	}
 	trigger_action(button_pressed, ent){
-
 		if(button_pressed['32']){
 			//need a way to figure out what block you are mining ! probably something to do with the grid
 			//mining_base_speed + block type 
@@ -67,8 +66,14 @@ class player{
 				if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= this.mining_tools[ this.inventory.mining_tool ]['mining_base_speed']){
 					console.log('FINISHED MINING BLOCK');
 					this.is_mining = false;
-					if(this.block != null){
-						this.block.splice(0, 1);
+					
+					var block_no = 1;
+					if(button_pressed['37']){block_no = 4;}
+					if(button_pressed['39']){block_no = 2;}
+					if(button_pressed['40']){block_no = 3;}
+					
+					if(this.blocks[ block_no ] != null){
+						return this.blocks[ block_no ].id;
 					}
 				}else{
 					this.mining_time_current = Date.now();
@@ -80,7 +85,6 @@ class player{
 				
 				this.can_move = false;
 				this.is_mining = true;
-				
 			}
 			ent.sprite.current_animation = 'mine';
 		}else{
@@ -126,5 +130,6 @@ class player{
 			//if nothing is pressed change animation to idle | create a idle animation | switch this to idle
 			ent.sprite.current_animation = 'run';
 		}
+		ent.pos.y = + 5;//gravity
 	}
 }
