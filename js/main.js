@@ -34,7 +34,16 @@ window.onload = function(){
 			[253,65,35,44,	7,19,35,44] //5
 		]
 	};	
-
+	assets['player'].animation['idle']={ 
+		options:{
+			time_between:100	
+		},
+		frames:[
+			[0,65,42,44,	0,19,42,44]
+		]
+	};	
+	
+	
 	assets['terrain'] = new asset('http://bluejaydev.com/games/gjk-dev/gjk/sprites/terrain.png');
 	assets['terrain'].animation['dirt']		 ={frames:[[0,0,80,80,		0,0,40,40]]};		
 	assets['terrain'].animation['grass_dirt']={frames:[[85,0,80,80,		0,0,40,40]]};			
@@ -61,9 +70,7 @@ window.onload = function(){
 
 class game{
 	constructor(){
- 
 		this.keymap = [];
- 		
 		this.ui = new ui();	
 		this.phys = new gjk();
 		this.cam = new camera(520, 520);

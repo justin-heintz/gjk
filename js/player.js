@@ -128,7 +128,7 @@ class player{
 		}
 		if(!button_pressed['16'] && !button_pressed['32'] && !button_pressed['37'] && !button_pressed['39'] && !button_pressed['38'] && !button_pressed['40']){
 			//if nothing is pressed change animation to idle | create a idle animation | switch this to idle
-			ent.sprite.current_animation = 'run';
+			ent.sprite.current_animation = 'idle';
 		}
 		ent.pos.y = + 5;//gravity
 	}
