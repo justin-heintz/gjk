@@ -50,13 +50,22 @@ class grid{
 	surrounding_ents(vector){
 		var x = Math.floor(vector.x/this.grid_size);
 		var y = Math.floor(vector.y/this.grid_size);
-
+ 
+/*
 		return [
-			this.check_empty( this.container['1-'+x+'-1-'+(y+1)]  ),
 			this.check_empty( this.container['1-'+x+'-1-'+(y-1)]  ),
-			this.check_empty( this.container['1-'+(x+1)+'-1-'+y] ),
+			this.check_empty( this.container['1-'+(x+1)+'-1-'+y]  ),
+			this.check_empty( this.container['1-'+x+'-1-'+(y-1)]  ),
 			this.check_empty( this.container['1-'+(x-1)+'-1-'+y]  )
 			];
+		*/
+		return[
+			this.check_empty( this.container['1-'+x+'-1-'+(y+1)]  ),//1
+			this.check_empty( this.container['1-'+x+'-1-'+(y-1)]  ),//2
+			this.check_empty( this.container['1-'+(x+1)+'-1-'+y]  ),//3
+			this.check_empty( this.container['1-'+(x-1)+'-1-'+y]  )	//4	
+		];
+		
 	}
 	check_empty(ary){
 		if(ary != undefined && ary != null && ary.length != 0){

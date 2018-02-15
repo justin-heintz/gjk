@@ -1,9 +1,6 @@
-//KEYCODE BUTTONS !!!
-//http://keycode.info
-//stopped working on the flash light get back to that later 
 window.onload = function(){	
 	assets = []; 
-	assets['player'] = new asset('http://bluejaydev.com/games/gjk-dev/gjk/sprites/characters/player.png');
+	assets['player'] = new asset('http://bluejaydev.com/games/miner-dev/miner/sprites/characters/player.png');
 	assets['player'].animation['mine']={ 
 		options:{
 			time_between:2	
@@ -26,12 +23,12 @@ window.onload = function(){
 			time_between:4	
 		},
 		frames:[
-			[0,65,42,44,	0,19,42,44],//0
-			[51,65,38,44,	0,19,42,44],//1
-			[103,64,37,45,	5,19,37,45],//2
-			[154,64,35,45,	7,19,35,45],//3
-			[200,64,39,45,	3,19,39,45],//4
-			[253,65,35,44,	7,19,35,44] //5
+			[0,65,42,44,	0,19,42,40],//0
+			[51,65,38,44,	0,19,42,40],//1
+			[103,64,37,45,	5,19,37,40],//2
+			[154,64,35,45,	7,19,35,40],//3
+			[200,64,39,45,	3,19,39,40],//4
+			[253,65,35,44,	7,19,35,40] //5
 		]
 	};	
 	assets['player'].animation['idle']={ 
@@ -39,12 +36,11 @@ window.onload = function(){
 			time_between:100	
 		},
 		frames:[
-			[0,65,42,44,	0,19,42,44]
+			[0,65,42,44, 0,19,42,40]
 		]
 	};	
 	
-	
-	assets['terrain'] = new asset('http://bluejaydev.com/games/gjk-dev/gjk/sprites/terrain.png');
+	assets['terrain'] = new asset('http://bluejaydev.com/games/miner-dev/miner/sprites/terrain.png');
 	assets['terrain'].animation['dirt']		 ={frames:[[0,0,80,80,		0,0,40,40]]};		
 	assets['terrain'].animation['grass_dirt']={frames:[[85,0,80,80,		0,0,40,40]]};			
 	assets['terrain'].animation['lava_stone']={frames:[[170,0,80,80,	0,0,40,40]]};	
@@ -77,10 +73,9 @@ class game{
 		this.grid = new grid(520,520);
 		this.p0 = new player(this.cam);
 		this.grid.container['player'] = new entity(
-			new shape(40,64,40,64), new sprite('player')
+			new shape(16,40,16,58), new sprite('player')
 		);	
-		this.grid.container['player'].sprite.current_animation = 'run';	
-		this.grid.container['player'].mass = 10;
+		this.grid.container['player'].sprite.current_animation = 'idle';	
 		
 		this.gen_stuff();
 		
@@ -91,8 +86,8 @@ class game{
 		this.update();
 	}  	
 	update(){
-		this.p0.blocks = this.grid.surrounding_ents( this.grid.container['player'].shape.centroid );
-		this.p0.blocks.unshift(this.grid.container['player']);
+		this.p0.blocks = this.grid.surrounding_ents( this.grid.container['player'].shape.centroid );//gets the blocks around the player and puts it in an array
+		this.p0.blocks.unshift(this.grid.container['player']);//puts player at the front of the array
 		
  		var remove_block = this.p0.trigger_action(this.keymap, this.grid.container['player'] );
 		
@@ -100,18 +95,18 @@ class game{
 			delete this.grid.container[remove_block]
 		}
 		
+		this.p0.apply_gravity( this.grid.container['player'] );
+		
 		this.grid.container['player'].update();
 		
-		var count = 0;
-		count += (this.p0.blocks[0] != undefined ? 1 : 0);
-		count += (this.p0.blocks[1] != undefined ? 1 : 0); 
-		count += (this.p0.blocks[2] != undefined ? 1 : 0);
-		count += (this.p0.blocks[3] != undefined ? 1 : 0); 
+ 		for(var i=1,count=0; i<=4; i++){
+			count += (this.p0.blocks[i] != undefined ? 1 : 0);
+		}
 		
 		if(count!=0){
 			this.phys.loopCheck(this.p0.blocks);
- 		}
-		
+		}
+
 		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){ 
 			e.update(); 
 		}); 	
@@ -121,6 +116,7 @@ class game{
 		requestAnimationFrame(this.loop.bind(this));		
 	}
 	draw(){
+		/*====== Clear Canvases ======*/
 		this.ui.clear();
 		canvas.fg.clearRect(0, 0, 520, 520);
  
@@ -142,10 +138,10 @@ class game{
 		canvas.bg.fillRect(0, 0, 520, 520);
 		
 		/*====== UI ======*/
-		this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, new vector(10,20) );
-		this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight,new vector(10,40));	
-		this.ui.draw("$:"+this.p0.currency,new vector(10,60));	
-		this.ui.draw("Current-Axe:"+this.p0.mining_tools[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
+		//this.ui.draw("Hp:"+this.p0.max_hp+"/"+this.p0.hp, new vector(10,20) );
+		//this.ui.draw("Weight:"+this.p0.max_weight+"/"+this.p0.weight,new vector(10,40));	
+		//this.ui.draw("$:"+this.p0.currency,new vector(10,60));	
+		//this.ui.draw("Current-Axe:"+this.p0.mining_tools[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
 	}
 	gen_stuff(){
 		var ani = 'dirt';

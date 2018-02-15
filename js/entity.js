@@ -6,7 +6,7 @@ class entity{
 	}
 	update(){
 		this.shape.update( this.pos );
-		
+ 
 		this.sprite.update(
 			this.shape.centroid.x - this.shape.width/2,
 			this.shape.centroid.y - this.shape.height/2,

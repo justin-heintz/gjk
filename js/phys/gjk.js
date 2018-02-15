@@ -141,9 +141,10 @@ class gjk{
 			for(var i=1; i<=newShapes.length-1; i++){
 				if(newShapes[0] != undefined && newShapes[i] != undefined){
 					result = this.check(newShapes[0].shape, newShapes[i].shape);
+					console.log(result, i, newShapes[i]);
 					if(result.x || result.y){
-						newShapes[0].pos.x=-1*result.x;
-						newShapes[0].pos.y=-1*result.y;
+						newShapes[0].pos.x += (-1*result.x);
+						newShapes[0].pos.y += (-1*result.y);
 					}	
 				}				
 			}

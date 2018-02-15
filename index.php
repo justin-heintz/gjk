@@ -18,7 +18,7 @@
 	<script src="js/main.js "></script>
 
 	<style>
-		body{background: #000; overflow: hidden; width: 100%; height: 100%; padding: 10px;}
+		body{background: #000; overflow: hidden; width: 100%; height: 100%; margin: 0; padding: 0;}
 		
 		canvas{position: relative; display: block; width: 520px; height: 520px; margin:0 auto;}
 
