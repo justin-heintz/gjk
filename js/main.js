@@ -41,11 +41,16 @@ window.onload = function(){
 	};	
 	
 	assets['terrain'] = new asset('http://bluejaydev.com/games/miner-dev/miner/sprites/terrain.png');
-	assets['terrain'].animation['dirt']		 ={frames:[[0,0,80,80,		0,0,40,40]]};		
-	assets['terrain'].animation['grass_dirt']={frames:[[85,0,80,80,		0,0,40,40]]};			
-	assets['terrain'].animation['lava_stone']={frames:[[170,0,80,80,	0,0,40,40]]};	
-	assets['terrain'].animation['dirt_stone']={frames:[[255,0,80,80,	0,0,40,40]]};
-	assets['terrain'].animation['stone']	 ={frames:[[340,0,80,80,	0,0,40,40]]};	
+	assets['terrain'].animation['dirt']		 	={frames:[[0,0,80,80,	0,0,40,40]]};		
+	assets['terrain'].animation['grass_dirt']	={frames:[[85,0,80,80,	0,0,40,40]]};			
+	assets['terrain'].animation['lava_stone']	={frames:[[170,0,80,80,	0,0,40,40]]};	
+	assets['terrain'].animation['stone']	 	={frames:[[255,0,80,80,	0,0,40,40]]};
+	assets['terrain'].animation['dirt_coal'] 	={frames:[[340,0,80,80,	0,0,40,40]]};	
+	assets['terrain'].animation['dirt_iron'] 	={frames:[[425,0,80,80,	0,0,40,40]]};
+	assets['terrain'].animation['dirt_emerald'] ={frames:[[510,0,80,80,	0,0,40,40]]};
+	assets['terrain'].animation['dirt_ruby'] 	={frames:[[595,0,80,80,	0,0,40,40]]};
+	assets['terrain'].animation['dirt_silver'] 	={frames:[[680,0,80,80,	0,0,40,40]]};
+	assets['terrain'].animation['dirt_copper'] 	={frames:[[765,0,80,80,	0,0,40,40]]};	
 
 	fg = document.getElementById("foreground"); 
 	bg = document.getElementById("background"); 
@@ -73,7 +78,7 @@ class game{
 		this.grid = new grid(520,520);
 		this.p0 = new player(this.cam);
 		this.grid.container['player'] = new entity(
-			new shape(16,40,16,58), new sprite('player')
+			new shape(16,40,16,40), new sprite('player')
 		);	
 		this.grid.container['player'].sprite.current_animation = 'idle';	
 		
@@ -89,6 +94,13 @@ class game{
 		this.p0.blocks = this.grid.surrounding_ents( this.grid.container['player'].shape.centroid );//gets the blocks around the player and puts it in an array
 		this.p0.blocks.unshift(this.grid.container['player']);//puts player at the front of the array
 		
+		if(this.p0.blocks[1] != undefined ){
+			
+			this.grid.container['player'].shape.is_airborne = false;
+		}else{
+			this.grid.container['player'].shape.is_airborne = true;
+		}
+		
  		var remove_block = this.p0.trigger_action(this.keymap, this.grid.container['player'] );
 		
 		if(remove_block != null || remove_block != undefined){
@@ -99,20 +111,19 @@ class game{
 		
 		this.grid.container['player'].update();
 		
- 		for(var i=1,count=0; i<=4; i++){
+ 		for(var i=1, count=0; i<=4; i++){ 
 			count += (this.p0.blocks[i] != undefined ? 1 : 0);
 		}
 		
-		if(count!=0){
-			this.phys.loopCheck(this.p0.blocks);
-		}
+		if(count!=0){ this.phys.loopCheck(this.p0.blocks); }
 
-		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){ 
-			e.update(); 
-		}); 	
+		this.grid.get(this.cam.pos.x, this.cam.pos.y, function(e){ e.update(); }); 	
 
 		this.grid.container['player'].update();
- 
+		
+		console.log( this.grid.container['player'].shape.is_airborne );
+		
+		//console.log( this.grid.container['player'].shape.vy.toFixed(2) );
 		requestAnimationFrame(this.loop.bind(this));		
 	}
 	draw(){
@@ -129,7 +140,8 @@ class game{
 				e.sprite.draw(canvas.fg);
 			});	
 
-			this.grid.container['player'].sprite.draw(canvas.fg, this.p0.direction );
+			this.grid.container['player'].shape.draw(canvas.fg)
+			//this.grid.container['player'].sprite.draw(canvas.fg, this.p0.direction );
  
 		canvas.fg.restore();	
 		
@@ -144,13 +156,65 @@ class game{
 		//this.ui.draw("Current-Axe:"+this.p0.mining_tools[ this.p0.inventory.mining_tool ]['name'] ,new vector(10,80));	
 	}
 	gen_stuff(){
-		var ani = 'dirt';
 		var tmp;
+		var terrain_types = {
+			1:{
+				name:'grass_dirt',
+				is_mineable:true,
+				density:5
+			},
+			2:{
+				name:'dirt',
+				is_mineable:true,
+				density:5
+			},
+			3:{
+				name:'lava_stone',
+				is_mineable:false,
+				density:10
+			},
+			4:{
+				name:'stone',
+				is_mineable:false,
+				density:10
+			},
+			5:{
+				name:'dirt_coal',
+				is_mineable:true,
+				density:10
+			},
+			6:{
+				name:'dirt_iron',
+				is_mineable:true,
+				density:10
+			},
+			7:{
+				name:'dirt_emerald',
+				is_mineable:true,
+				density:10
+			},
+			8:{
+				name:'dirt_ruby',
+				is_mineable:true,
+				density:10
+			},
+			9:{
+				name:'dirt_silver',
+				is_mineable:true,
+				density:10
+			},
+			10:{
+				name:'dirt_copper',
+				is_mineable:true,
+				density:10
+			},			
+		};
+ 
 		for(var w=0;w<120;w++){
 			for(var h=4;h<120;h++){
-				//switch(this.rng(1, 2)){case 1: ani='dirt'; break; case 2: ani='grass_dirt'; break; case 3: ani='lava_stone'; break; case 4: ani='dirt_stone'; break; case 5: ani='stone'; break; case 6: ani='run'; break; case 7: ani='mine'; break;}
-				tmp = new entity( new shape(w*40,h*40,40,40), new sprite('terrain'))
-				tmp.sprite.current_animation = (h==4?"grass_dirt":"dirt");
+				var ran = this.rng(2, 10) ;
+				tmp = new entity( new shape(w*40,h*40,40,40), new sprite('terrain'), terrain_types[(h==4?  1:ran)] );
+				tmp.sprite.current_animation = (h==4?  terrain_types[1].name :terrain_types[ran].name );
 				this.grid.add(tmp);
 			}
 		}

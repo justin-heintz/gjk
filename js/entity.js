@@ -1,8 +1,13 @@
 class entity{
-	constructor(shape, sprite){
+	constructor(shape, sprite, attributes = {name:'Na', is_mineable:false, density:1}){
 		this.shape = shape;
 		this.sprite = sprite;
 		this.pos = new vector(0,0);
+		
+		/*attributes*/
+		this.is_mineable = attributes.is_mineable;
+		this.density = attributes.density;
+		this.name = attributes.name
 	}
 	update(){
 		this.shape.update( this.pos );

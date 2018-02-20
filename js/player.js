@@ -2,7 +2,7 @@ class player{
 	constructor(cam){
 		this.cam = cam;
 		
-		this.speed = 5;
+		this.speed = 2;
 		this.can_move = true;
 		this.direction = true;
 		
@@ -21,7 +21,6 @@ class player{
 		this.remove_block = null;
 		
 		this.is_mining = false;
-		this.is_airborne = false;
 		this.is_climbing = false;
 		
 		this.mining_tools = {
@@ -34,28 +33,32 @@ class player{
 			1:{name:"",weight:70},
 			2:{name:"",weight:10}
 		};
+		this.in_hand = "mining_tool";
 		this.inventory = { 
 			mining_tool:2,
 			backpack:0,
+			ladders:20,
 			elevator:{
 				cart:0,
-				rope:0
+				rope:20
 			},	
 			ore:{
-				coal: 0,
-				copper: 0,
-				iorn: 0,
-				silver: 0,
-				gold: 0,
-				diamond: 0
+				dirt:0,
+				dirt_coal: 0,
+				dirt_copper: 0,
+				dirt_iron: 0,
+				dirt_silver: 0,
+				dirt_emerald: 0,
+				dirt_ruby: 0
 			},
 			ore_smelted:{
-				coal: 0,
-				copper: 0,
-				iorn: 0,
-				silver: 0,
-				gold: 0,
-				diamond: 0
+				dirt:0,
+				dirt_coal: 0,
+				dirt_copper: 0,
+				dirt_iron: 0,
+				dirt_silver: 0,
+				dirt_emerald: 0,
+				dirt_ruby: 0
 			}
 		};
 	}
@@ -65,40 +68,54 @@ class player{
 			// i can tell if im able to jump or climb ladder
 			//need a way to place ladders
 			
-			//if(!this.is_airborne){
-				ent.pos.y -= 10;
-				this.is_airborne = true;
-			//}
+			if(!ent.shape.is_airborne){
+				ent.shape.vy-=5;
+				ent.shape.y = 0;
+				ent.shape.is_airborne = true;
+			}
 		}
 		if(button_pressed['32']){
-			//need a way to figure out what block you are mining ! probably something to do with the grid
-			//mining_base_speed + block type 
-			if(this.is_mining){	
-				if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= this.mining_tools[ this.inventory.mining_tool ]['mining_base_speed']){
-					console.log('FINISHED MINING BLOCK');
-					this.is_mining = false;
-					
-					var block_no = 1;
-					
-					if(button_pressed['39']){block_no = 3; this.direction = true;}//right
-					if(button_pressed['40']){block_no = 1;}//down
-					if(button_pressed['37']){block_no = 4; this.direction = false;}//left
-					
-					if(this.blocks[ block_no ] != null){
-						return this.blocks[ block_no ].id;
+			if(this.in_hand=="mining_tool"){
+				var block_no;
+				if(button_pressed['40']){block_no = 1;}//down
+				if(button_pressed['38']){block_no = 2;}//up
+				if(button_pressed['39']){block_no = 3; this.direction = true;}//right
+				if(button_pressed['37']){block_no = 4; this.direction = false;}//left
+				
+				console.log( this.blocks[ block_no ] );
+				
+				if(this.is_mining && this.blocks[block_no] != undefined){	
+
+					if( Math.ceil((this.mining_time_current - this.mining_time_start)/100) >= 10 - this.mining_tools[ this.inventory.mining_tool ]['mining_base_speed'] + this.blocks[block_no].density ){
+						console.log('FINISHED MINING BLOCK');
+ 						
+						this.is_mining = false;
+
+						if(this.inventory.ore[this.blocks[block_no]['name']] != undefined){
+							this.inventory.ore[this.blocks[block_no]['name']]++;
+						}
+						
+						if(this.blocks[ block_no ] != null){
+							console.log(this.blocks[block_no]);
+							return this.blocks[ block_no ].id;
+						}
+					}else{
+						this.mining_time_current = Date.now();
 					}
 				}else{
-					this.mining_time_current = Date.now();
+					if(this.blocks[ block_no ] != undefined && this.blocks[block_no].is_mineable){
+						console.log('STARTED MINING / RESET MINING', this.blocks[block_no].is_mineable);
+						this.mining_time_current = Date.now();
+						this.mining_time_start = Date.now()
+						
+						this.can_move = false;
+						this.is_mining = true;
+					}else{
+						this.can_move = true;
+					}
 				}
-			}else{
-				console.log('STARTED MINING / RESET MINING');
-				this.mining_time_current = Date.now();
-				this.mining_time_start = Date.now()
-				
-				this.can_move = false;
-				this.is_mining = true;
+				ent.sprite.current_animation = 'mine';
 			}
-			ent.sprite.current_animation = 'mine';
 		}else{
 			this.is_mining = false;
 			this.can_move = true;
@@ -125,19 +142,21 @@ class player{
 			this.direction = true;
 		}
 		if(button_pressed['40'] && this.can_move){
-			ent.pos.y = this.speed;
-			if( ent.sprite.pos.y+ent.sprite.height >= this.cam.pos.y+this.cam.height-this.cam.screen_padding){
-				this.cam.pos.y+=this.cam.cam_speed;	
-			} 				
+			ent.pos.y+=1 
 			ent.sprite.current_animation = 'idle';
 		}
+		if( ent.sprite.pos.y+ent.sprite.height >= this.cam.pos.y+this.cam.height-this.cam.screen_padding){
+			this.cam.pos.y+=this.cam.cam_speed;	
+		} 				
+		
 		if(!button_pressed['16'] && !button_pressed['17'] && !button_pressed['32'] && !button_pressed['37'] && !button_pressed['38'] && !button_pressed['39'] && !button_pressed['40']){
 			ent.sprite.current_animation = 'idle';
 		}
 	}
 	apply_gravity(ent){
-		if(this.is_airborne){
-			ent.pos.y += 5;
+		if(ent.shape.is_airborne){
+			//ent.pos.y += 5;
+			ent.shape.vy++;
 		}
 	}
 }

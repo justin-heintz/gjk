@@ -2,8 +2,14 @@ class shape{
 	constructor(x,y,width,height){ 
 		this.width = width;
 		this.height = height;
-		this.mass = 100;
 		this.x = this.y = 0;
+		this.vx = this.vy = 0;
+		
+		this.is_airborne = true;
+		
+		this.friction = 0.9;//
+		this.mass = 100;
+		
 		this.color = "red";
 
 		this.moves = true;	
@@ -17,8 +23,8 @@ class shape{
 		this.following_path = false;
 		this.centroid = this.gen_centroid();
 		
-		/* TMP  FOR TESTING */
-		this.paths['path_2'] = [new vector(100,100),new vector(120,100),new vector(130,200),new vector(130,300),new vector(120,400),new vector(100,100)]
+		/* TMP FOR TESTING */
+		this.paths['path_2'] = [new vector(100,100),new vector(120,100),new vector(130,200),new vector(130,300),new vector(120,400),new vector(100,100)];
 	}
 	at_point(vector1,vector2,radius){ 
 		var absX = Math.pow(Math.abs(vector1.x - vector2.x), 2.0) 
@@ -33,7 +39,7 @@ class shape{
 			if(this.centroid.x > path_x){this.x-=5;}else if(this.centroid.x < path_x){this.x+=5;} 
 			if(this.centroid.y > path_y){this.y-=5;}else if(this.centroid.y < path_y){this.y+=5;} 
 			
-			if( this.at_point(this.centroid,this.paths[this.crnt_path][this.crnt_point],5) ){ 			
+			if( this.at_point(this.centroid,this.paths[this.crnt_path][this.crnt_point],5) ){
 				if(this.crnt_point < this.paths[this.crnt_path].length-1){
 					this.crnt_point++;
 				}else{
@@ -42,15 +48,22 @@ class shape{
 					}else{
 						this.following_path = false;
 					}
-				} 
-			}			
+				}
+			}
 		}
 	}
 	update(new_pos){
 		if(this.moves){
+			 
 			this.x = new_pos.x;
 			this.y = new_pos.y;				
 			
+			this.vy*=this.friction;
+			this.y += this.vy;
+			this.y.toFixed(2);
+			this.y = (this.y >= 24 ? 24:this.y);
+			this.y = (this.y <= -24 ? -24:this.y);
+ 
 			this.follow_path();
  
 			for(let i=0; i<this.vectors.length; i++){
@@ -106,3 +119,4 @@ class shape{
 		return new vector(x, y);
 	}	
 }
+ 
